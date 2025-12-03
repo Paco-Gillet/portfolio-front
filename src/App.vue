@@ -78,10 +78,9 @@ const items = computed(() => [
               optionLabel="name"
               class="!w-auto !border-none !shadow-none !bg-transparent flex items-center justify-center"
               :pt="{
-            // Permet d'écraser le padding interne de PrimeVue pour le rendre très compact
-            label: { class: '!p-1 !pr-0' },
-            dropdown: { class: '!w-6' }
-        }"
+                  label: { class: '!p-1 !pr-0' },
+                  dropdown: { class: '!w-6' }
+              }"
           >
             <template #value="slotProps">
               <div v-if="slotProps.value" class="flex items-center justify-center">
