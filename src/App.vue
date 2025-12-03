@@ -1,44 +1,51 @@
-<script setup>
-import { ref } from "vue";
-import Menubar from "primevue/menubar"
-import InputText from "primevue/inputtext"
-import Avatar from "primevue/avatar"
+<script setup lang="ts">
+import {onMounted, ref, watch, computed} from "vue";
+import { useI18n } from 'vue-i18n'
+
 import Home from "@/components/Home.vue";
 
-const items = ref([
+
+const darkMode = ref(false);
+function toggleDarkMode() {
+  document.documentElement.classList.toggle('dark');
+  darkMode.value = document.documentElement.classList.contains('dark');
+  localStorage.setItem('theme', darkMode.value ? 'dark' : 'light');
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    darkMode.value = true;
+    document.documentElement.classList.add('dark');
+  }
+});
+
+const { t, locale } = useI18n()
+const languages = ref([
+  { name: 'Français', code: 'fr', flagCode: 'fr' },
+  { name: 'English', code: 'en', flagCode: 'gb' }
+]);
+const selectedLanguage = ref(languages.value.find(lang => lang.code === locale.value));
+
+watch(selectedLanguage, (newLang) => {
+  if (newLang) {
+    locale.value = newLang.code;
+    localStorage.setItem('user-locale', newLang.code);
+  }
+});
+
+const items = computed(() => [
   {
-    label: 'Home',
+    label: t('home'),
     icon: 'pi pi-home'
   },
   {
-    label: 'Projects',
+    label: t('projects'),
     icon: 'pi pi-search',
     items: [
       {
-        label: 'Components',
-        icon: 'pi pi-bolt'
-      },
-      {
-        label: 'Blocks',
-        icon: 'pi pi-server'
-      },
-      {
-        label: 'UI Kit',
-        icon: 'pi pi-pencil'
-      },
-      {
-        label: 'Templates',
-        icon: 'pi pi-palette',
-        items: [
-          {
-            label: 'Apollo',
-            icon: 'pi pi-palette'
-          },
-          {
-            label: 'Ultima',
-            icon: 'pi pi-palette'
-          }
-        ]
+        label: 'TBC',
+        icon: 'pi pi-clock'
       }
     ]
   }
@@ -56,8 +63,39 @@ const items = ref([
       </template>
       <template #end>
         <div class="flex items-center gap-2">
-          <InputText placeholder="Search" type="text" class="w-32 sm:w-auto" />
-          <Avatar image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png" shape="circle" />
+          <ToggleSwitch
+              v-model="darkMode"
+              @change="toggleDarkMode"
+          >
+            <template #handle="{ checked }">
+              <i v-if="checked" class="pi pi-moon text-xs" />
+              <i v-else class="pi pi-sun text-xs" />
+            </template>
+          </ToggleSwitch>
+          <Select
+              v-model="selectedLanguage"
+              :options="languages"
+              optionLabel="name"
+              class="!w-auto !border-none !shadow-none !bg-transparent flex items-center justify-center"
+              :pt="{
+            // Permet d'écraser le padding interne de PrimeVue pour le rendre très compact
+            label: { class: '!p-1 !pr-0' },
+            dropdown: { class: '!w-6' }
+        }"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex items-center justify-center">
+                <span :class="`fi fi-${slotProps.value.flagCode} text-xl rounded-sm`"></span>
+              </div>
+            </template>
+
+            <template #option="slotProps">
+              <div class="flex items-center gap-2">
+                <span :class="`fi fi-${slotProps.option.flagCode}`"></span>
+                <span class="text-sm">{{ slotProps.option.name }}</span>
+              </div>
+            </template>
+          </Select>
         </div>
       </template>
     </Menubar>

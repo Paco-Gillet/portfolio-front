@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import i18n from "@/i18n";
+import 'flag-icons/css/flag-icons.min.css';
 
 import './assets/style.css'
 
@@ -12,10 +14,14 @@ app.use(PrimeVue, {
         preset: Aura,
         options: {
             prefix: 'p',
-            darkModeSelector: 'system',
-            cssLayer: false
+            darkModeSelector: '.dark',
+            cssLayer: {
+                name: 'primevue',
+                order: 'theme, base, primevue'
+            }
         }
     }
 });
+app.use(i18n);
 
 app.mount('#app');
